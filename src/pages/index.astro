@@ -27,7 +27,65 @@ const reservaUrl = 'https://www.baqueanonatales.com/prestadores/se-alquila-marid
 ---
 
 <Layout title="Se Alquila Marido — Mecánica automotriz en Puerto Natales">
-  <slot name="head" />
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      '@id': 'https://sealquilamarido.com/#localbusiness',
+      name: 'Se Alquila Marido',
+      description: 'Mecánica automotriz profesional en Puerto Natales. Servicio puerta a puerta, garantía escrita y atención directa por WhatsApp.',
+      url: 'https://sealquilamarido.com',
+      telephone: '+56 9 1234 5679',
+      email: 'contacto@sealquilamarido.com',
+      image: 'https://sealquilamarido.com/logo-sealquilamarido-light.svg',
+      logo: 'https://sealquilamarido.com/logo-sealquilamarido-light.svg',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Av. España 1234',
+        addressLocality: 'Puerto Natales',
+        addressRegion: 'Magallanes',
+        addressCountry: 'CL',
+      },
+      areaServed: {
+        '@type': 'City',
+        name: 'Puerto Natales',
+      },
+      priceRange: '$$',
+      ...(totalReviews > 0 && rating !== '—' ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: rating,
+          reviewCount: totalReviews,
+          bestRating: '5',
+          worstRating: '1',
+        },
+      } : {}),
+      sameAs: [
+        'https://www.baqueanonatales.com/prestadores/se-alquila-marido',
+      ],
+      ...(servicios.length > 0 ? {
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Servicios de mecánica automotriz',
+          itemListElement: servicios.map((s) => ({
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: s.nombre,
+              ...(s.descripcion ? { description: s.descripcion } : {}),
+            },
+            ...(s.precio_desde_clp ? {
+              priceSpecification: {
+                '@type': 'PriceSpecification',
+                priceCurrency: 'CLP',
+                minPrice: s.precio_desde_clp,
+              },
+            } : {}),
+          })),
+        },
+      } : {}),
+    })} />
+  </Fragment>
 
   <!-- ============ HERO ============ -->
   <section class="relative overflow-hidden">
