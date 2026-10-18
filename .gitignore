@@ -12,3 +12,4 @@ npm-debug.log*
 Thumbs.db
 .vercel
 .env*
+.gcp-credentials.json
