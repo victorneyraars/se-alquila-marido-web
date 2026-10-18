@@ -1,0 +1,18 @@
+---
+import type { Review } from '../config/api';
+interface Props { review: Review; }
+const { review } = Astro.props;
+---
+<div class="card">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-sam-accent text-xs font-bold">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+    <span class="text-[10px] text-sam-light/50">{review.cliente_nombre ?? 'Cliente'}</span>
+  </div>
+  {review.comentario && <p class="text-sm text-sam-light/80 mt-1 italic">"{review.comentario}"</p>}
+  {review.respuesta_prestador && (
+    <div class="mt-3 pl-3 border-l-2 border-sam-accent/40">
+      <p class="text-[10px] text-sam-accent font-bold uppercase tracking-wider">Respuesta de Se Alquila Marido</p>
+      <p class="text-xs text-sam-light/70 mt-1">{review.respuesta_prestador}</p>
+    </div>
+  )}
+</div>

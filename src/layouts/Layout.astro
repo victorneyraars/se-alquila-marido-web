@@ -1,0 +1,102 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const {
+  title,
+  description = 'Se Alquila Marido — Mecánica automotriz profesional en Puerto Natales. El experto que necesitas, cuando lo necesitas.',
+} = Astro.props;
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Se Alquila Marido" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://sealquilamarido.com/logo-sealquilamarido-light.svg" />
+    <meta property="og:url" content="https://sealquilamarido.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen bg-sam-darker text-sam-light flex flex-col">
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-sam-darker/90 border-b border-sam-primary/20">
+      <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center group">
+          <img
+            src="/logo-sealquilamarido-light.svg"
+            alt="Se Alquila Marido"
+            class="h-10 transition-transform group-hover:scale-105"
+          />
+        </a>
+        <div class="flex items-center gap-3">
+          <a href="/#servicios" class="hidden sm:inline-block text-sm font-medium text-sam-light/80 hover:text-sam-accent transition">
+            Servicios
+          </a>
+          <a href="/#contacto" class="hidden sm:inline-block text-sm font-medium text-sam-light/80 hover:text-sam-accent transition">
+            Contacto
+          </a>
+          <a
+            href="https://www.baqueanonatales.com/prestadores/se-alquila-marido"
+            class="bg-sam-primary hover:bg-sam-accent text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-full transition-all shadow-md shadow-sam-primary/20 active:scale-95"
+          >
+            Reservar turno
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="bg-sam-darker border-t border-sam-primary/20 py-8 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid sm:grid-cols-3 gap-6 mb-6">
+          <div>
+            <img src="/logo-sealquilamarido-light.svg" alt="Se Alquila Marido" class="h-8 mb-3" />
+            <p class="text-xs text-sam-light/60">El experto que necesitas, cuando lo necesitas.</p>
+          </div>
+          <div>
+            <h4 class="text-xs uppercase font-bold text-sam-accent mb-2">Contacto</h4>
+            <ul class="space-y-1 text-xs text-sam-light/70">
+              <li><a href="https://wa.me/56912345679" target="_blank" rel="noopener" class="hover:text-sam-accent">WhatsApp</a></li>
+              <li><a href="tel:+56912345679" class="hover:text-sam-accent">+56 9 1234 5679</a></li>
+              <li><a href="mailto:contacto@sealquilamarido.com" class="hover:text-sam-accent">contacto@sealquilamarido.com</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-xs uppercase font-bold text-sam-accent mb-2">Legal</h4>
+            <ul class="space-y-1 text-xs text-sam-light/70">
+              <li><a href="https://api.baqueanonatales.com/legal/privacidad" target="_blank" class="hover:text-sam-accent">Privacidad</a></li>
+              <li><a href="https://api.baqueanonatales.com/legal/terminos" target="_blank" class="hover:text-sam-accent">Términos</a></li>
+              <li><a href="https://api.baqueanonatales.com/legal/eliminar-cuenta" target="_blank" class="hover:text-sam-accent">Eliminar cuenta</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-sam-primary/10 pt-4 text-center text-[11px] text-sam-light/50">
+          <p>© {new Date().getFullYear()} Se Alquila Marido. Puerto Natales, Chile.</p>
+          <p class="mt-1">
+            Reservas procesadas por
+            <a href="https://www.baqueanonatales.com" target="_blank" class="text-sam-accent hover:underline">Baqueano Natales</a>
+            · Tecnología de
+            <a href="https://www.studiodigital360.com" target="_blank" class="text-sam-accent hover:underline">Studio Digital 360</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

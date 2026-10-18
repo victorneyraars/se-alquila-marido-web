@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  body {
+    @apply bg-sam-darker text-sam-light antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-sam-primary hover:bg-sam-accent text-white font-bold transition-all shadow-lg shadow-sam-primary/20 active:scale-95;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-sam-primary/40 text-sam-accent hover:bg-sam-primary/10 font-bold transition-all active:scale-95;
+  }
+  .card {
+    @apply bg-sam-dark/60 border border-sam-primary/20 rounded-2xl p-5 hover:border-sam-primary/40 transition-all;
+  }
+  .section-title {
+    @apply text-xs uppercase font-bold tracking-wider text-sam-accent mb-2;
+  }
+}
