@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://sealquilamarido.com',
-  output: 'server',
+  output: 'static',
   integrations: [tailwind()],
   adapter: vercel(),
 });
