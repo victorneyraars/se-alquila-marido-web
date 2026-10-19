@@ -13,3 +13,4 @@ Thumbs.db
 .vercel
 .env*
 .gcp-credentials.json
+*.bak_*
