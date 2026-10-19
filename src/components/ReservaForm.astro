@@ -94,84 +94,103 @@ const { servicios = [] } = Astro.props;
     <div id="resultado" class="hidden mt-4 p-4 rounded-lg"></div>
   </form>
 </div>
-
-
-
 <script>
   (function() {
     console.log('[RESERVA] Script cargado');
 
-    function initForm() {
-      console.log('[RESERVA] initForm ejecutado');
-
+    async function initForm() {
       var form = document.getElementById('reserva-form');
       var btn = document.getElementById('btn-submit');
       var resultado = document.getElementById('resultado');
 
       if (!form || !btn || !resultado) {
-        console.error('[RESERVA] Faltan elementos:', { form: !!form, btn: !!btn, resultado: !!resultado });
-        alert('[RESERVA] Error: faltan elementos del form');
+        console.error('[RESERVA] Faltan elementos');
         return;
       }
 
-      console.log('[RESERVA] Todos los elementos encontrados');
+      // 1. Chequear si volvimos del redirect de Google
+      console.log('[RESERVA] Chequeando redirect result...');
+      var firebaseMod = await import('../lib/firebase');
+      var idToken = await firebaseMod.getGoogleRedirectResult();
 
+      if (idToken) {
+        console.log('[RESERVA] Token del redirect obtenido');
+        // Guardamos el token en sessionStorage y ejecutamos el submit
+        sessionStorage.setItem('pending_reserva_token', idToken);
+        // Disparamos el submit automáticamente
+        await submitReserva(idToken);
+      }
+
+      // 2. Click handler
       btn.addEventListener('click', async function(e) {
         e.preventDefault();
-        console.log('[RESERVA] Click capturado');
-        alert('[DEBUG] Click capturado - iniciando reserva');
-
         btn.disabled = true;
         var textoOriginal = btn.textContent;
-        btn.textContent = 'Abriendo Google...';
+        btn.textContent = 'Redirigiendo a Google...';
 
         try {
-          console.log('[RESERVA] Importando Firebase...');
-          var firebaseMod = await import('../lib/firebase');
-          console.log('[RESERVA] Firebase importado OK');
-
-          var idToken = await firebaseMod.signInWithGoogle();
-          console.log('[RESERVA] Token obtenido:', idToken.substring(0, 20) + '...');
-          btn.textContent = 'Creando reserva...';
-
-          var payload = {
-            id_token: idToken,
+          // Guardar datos del form en sessionStorage (para recuperarlos al volver)
+          sessionStorage.setItem('pending_reserva_data', JSON.stringify({
             marca: document.getElementById('marca').value,
             modelo: document.getElementById('modelo').value,
             anio: document.getElementById('anio').value,
             fecha_inicio: document.getElementById('fecha').value,
             motivo: document.getElementById('motivo').value
-          };
+          }));
 
-          console.log('[RESERVA] Enviando a /api/reservas...');
-          var r = await fetch('/api/reservas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
+          // Redirigir a Google
+          await firebaseMod.signInWithGoogleRedirect();
+          // Esta línea no se ejecuta (el navegador redirige)
 
-          var data = await r.json();
-          console.log('[RESERVA] Respuesta:', data);
-
-          if (r.ok && data.success) {
-            resultado.className = 'mt-4 p-4 rounded-lg bg-green-50 text-green-800';
-            resultado.innerHTML = '<strong>¡Reserva creada!</strong><br>Te enviamos un email de confirmación.<br><a href="/app" class="text-sam-accent underline">Descargá la app</a> para seguir tu turno.';
-            form.reset();
-          } else {
-            throw new Error(data.error || 'Error creando reserva');
-          }
         } catch (err) {
-          console.error('[RESERVA] Error:', err);
+          console.error('[RESERVA] Error redirect:', err);
           resultado.className = 'mt-4 p-4 rounded-lg bg-red-50 text-red-800';
           resultado.textContent = 'Error: ' + err.message;
-        } finally {
           resultado.classList.remove('hidden');
           btn.disabled = false;
           btn.textContent = textoOriginal;
         }
       });
 
-      console.log('[RESERVA] Listener attachado al botón');
+      // 3. Función submit (después de volver del redirect)
+      async function submitReserva(idToken) {
+        var resultado = document.getElementById('resultado');
+        var dataStr = sessionStorage.getItem('pending_reserva_data');
+
+        if (!dataStr) {
+          console.error('[RESERVA] No hay datos guardados');
+          return;
+        }
+
+        var data = JSON.parse(dataStr);
+        var payload = Object.assign({ id_token: idToken }, data);
+
+        resultado.className = 'mt-4 p-4 rounded-lg bg-blue-50 text-blue-800';
+        resultado.textContent = 'Creando reserva...';
+        resultado.classList.remove('hidden');
+
+        try {
+          var r = await fetch('/api/reservas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          var resData = await r.json();
+
+          if (r.ok && resData.success) {
+            resultado.className = 'mt-4 p-4 rounded-lg bg-green-50 text-green-800';
+            resultado.innerHTML = '<strong>¡Reserva creada!</strong><br>Te enviamos un email de confirmación.<br><a href="/app" class="text-sam-accent underline">Descargá la app</a> para seguir tu turno.';
+            sessionStorage.removeItem('pending_reserva_data');
+            sessionStorage.removeItem('pending_reserva_token');
+          } else {
+            throw new Error(resData.error || 'Error creando reserva');
+          }
+        } catch (err) {
+          console.error('[RESERVA] Error submit:', err);
+          resultado.className = 'mt-4 p-4 rounded-lg bg-red-50 text-red-800';
+          resultado.textContent = 'Error: ' + err.message;
+        }
+      }
     }
 
     if (document.readyState === 'loading') {
