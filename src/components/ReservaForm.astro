@@ -98,13 +98,15 @@ const { servicios = [] } = Astro.props;
 <script>
   import { signInWithGoogle } from '../lib/firebase';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  (() => {
   const form = document.getElementById('reserva-form') as HTMLFormElement;
   const btn = document.getElementById('btn-submit') as HTMLButtonElement;
   const resultado = document.getElementById('resultado') as HTMLDivElement;
 
-  form?.addEventListener('submit', async (e) => {
+  if (!form || !btn || !resultado) { alert('[DEBUG] No encontre elementos'); return; }
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    alert('[DEBUG] Submit capturado');
     btn.disabled = true;
     btn.textContent = 'Abriendo Google...';
 
@@ -150,5 +152,5 @@ const { servicios = [] } = Astro.props;
       btn.textContent = 'Reservar con Google';
     }
   });
-  });
+  })();
 </script>
