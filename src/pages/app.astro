@@ -1,0 +1,25 @@
+---
+// Redirige /app a la descarga directa del APK (compatible con output: static).
+const apkUrl = 'https://api-dev.baqueanonatales.com/apks/app-clientdev.apk';
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content={`0; url=${apkUrl}`} />
+  <title>Descargando Baqueano...</title>
+  <script is:inline define:vars={{ apkUrl }}>
+    window.location.replace(apkUrl);
+  </script>
+  <style>
+    body { font-family: system-ui, sans-serif; text-align: center; padding: 40px; color: #1a1a1a; }
+    a { color: #4ade80; }
+    .hint { color: #666; font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Descargando Baqueano...</h1>
+  <p>Si la descarga no inicia automáticamente, <a href={apkUrl}>hacé clic acá</a>.</p>
+  <p class="hint">Redirigiendo al APK...</p>
+</body>
+</html>
