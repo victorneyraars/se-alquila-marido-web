@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     }
 
     // 1. Login con Firebase id_token → JWT backend
-    const loginRes = await fetch(`${API_URL}/api/v1/auth/login-google`, {
+    const loginRes = await fetch(`${API_URL}/api/v1/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_token }),
