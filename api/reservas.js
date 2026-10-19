@@ -13,9 +13,9 @@ export default async function handler(req, res) {
     const raw = Buffer.concat(chunks).toString();
     const body = JSON.parse(raw);
 
-    const { id_token, marca, modelo, anio, fecha_inicio, motivo } = body;
+    const { id_token, marca, modelo, anio, patente, fecha_inicio, motivo } = body;
 
-    if (!id_token || !marca || !modelo || !fecha_inicio) {
+    if (!id_token || !marca || !modelo || !patente || !fecha_inicio) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${jwt}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ marca, modelo, anio: anio ? parseInt(anio) : null }),
+      body: JSON.stringify({ patente: patente.toUpperCase().trim(), marca, modelo, anio: anio ? parseInt(anio) : null }),
     });
 
     if (!vehiculoRes.ok) {

@@ -72,6 +72,18 @@ const { servicios = [] } = Astro.props;
       />
     </div>
 
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Patente</label>
+        <input
+          type="text"
+          id="patente"
+          required
+          maxlength="10"
+          placeholder="ABCD12"
+          class="w-full p-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-sam-accent bg-white uppercase"
+        />
+      </div>
+
       <label class="block text-sm font-medium text-gray-700 mb-1 mt-4">
         Contanos brevemente qué pasa (opcional)
       </label>
@@ -142,6 +154,7 @@ const { servicios = [] } = Astro.props;
             marca: document.getElementById('marca').value,
             modelo: document.getElementById('modelo').value,
             anio: document.getElementById('anio').value,
+            patente: document.getElementById('patente').value.toUpperCase().trim(),
             fecha_inicio: document.getElementById('fecha').value,
             motivo: document.getElementById('motivo').value
           };
