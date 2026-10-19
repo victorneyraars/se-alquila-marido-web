@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import ServicioCard from '../components/ServicioCard.astro';
 import ReviewCard from '../components/ReviewCard.astro';
 import WhatsAppButton from '../components/WhatsAppButton.astro';
+import ReservaForm from '../components/ReservaForm.astro';
 import {
   fetchPrestadorPorSlug,
   fetchReviewsPrestador,
@@ -283,4 +284,10 @@ const reservaUrl = 'https://www.baqueanonatales.com/prestadores/se-alquila-marid
       </p>
     </div>
   </section>
+
+  <!-- ============ RESERVA ============ -->
+  <div id="reserva" class="py-12">
+    <ReservaForm servicios={servicios} />
+  </div>
+
 </Layout>

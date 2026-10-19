@@ -1,0 +1,152 @@
+---
+interface Props {
+  servicios?: Array<{ id: string; nombre: string; precio_desde_clp: number | null }>;
+}
+const { servicios = [] } = Astro.props;
+---
+<div id="reserva-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mt-12 max-w-2xl mx-auto">
+  <h2 class="text-2xl md:text-3xl font-bold text-sam-dark mb-2 text-center">
+    Reservá tu turno
+  </h2>
+  <p class="text-center text-gray-600 mb-6">
+    Coordinamos día, hora y presupuesto por email. Sin cargo por reserva.
+  </p>
+
+  <form id="reserva-form" class="space-y-4">
+    <div id="form-initial">
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        ¿Qué necesitás?
+      </label>
+      <select id="servicio" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent">
+        <option value="">Elegí un servicio...</option>
+        <option value="mantenimiento">Mantenimiento preventivo</option>
+        <option value="frenos">Frenos</option>
+        <option value="motor">Reparación de motor</option>
+        <option value="diagnostico">Diagnóstico computarizado</option>
+        <option value="otro">Otro (especificar)</option>
+      </select>
+
+      <label class="block text-sm font-medium text-gray-700 mb-1 mt-4">
+        ¿Cuándo te viene bien?
+      </label>
+      <input
+        type="datetime-local"
+        id="fecha"
+        required
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+        <input
+          type="text"
+          id="marca"
+          required
+          placeholder="Toyota"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+        <input
+          type="text"
+          id="modelo"
+          required
+          placeholder="Corolla"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent"
+        />
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
+      <input
+        type="number"
+        id="anio"
+        min="1980"
+        max="2030"
+        placeholder="2015"
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent"
+      />
+    </div>
+
+      <label class="block text-sm font-medium text-gray-700 mb-1 mt-4">
+        Contanos brevemente qué pasa (opcional)
+      </label>
+      <textarea
+        id="motivo"
+        rows="3"
+        placeholder="Hace un ruido raro al frenar..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sam-accent"
+      ></textarea>
+    </div>
+
+    <button
+      type="submit"
+      id="btn-submit"
+      class="w-full bg-sam-accent text-white font-semibold py-3 px-6 rounded-lg hover:bg-sam-dark transition-colors mt-6"
+    >
+      Reservar con Google
+    </button>
+
+    <div id="resultado" class="hidden mt-4 p-4 rounded-lg"></div>
+  </form>
+</div>
+
+<script>
+  import { signInWithGoogle } from '../lib/firebase';
+
+  const form = document.getElementById('reserva-form') as HTMLFormElement;
+  const btn = document.getElementById('btn-submit') as HTMLButtonElement;
+  const resultado = document.getElementById('resultado') as HTMLDivElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Abriendo Google...';
+
+    try {
+      const idToken = await signInWithGoogle();
+
+      btn.textContent = 'Creando reserva...';
+
+      const payload = {
+        id_token: idToken,
+        marca: (document.getElementById('marca') as HTMLInputElement).value,
+        modelo: (document.getElementById('modelo') as HTMLInputElement).value,
+        anio: (document.getElementById('anio') as HTMLInputElement).value,
+        fecha_inicio: (document.getElementById('fecha') as HTMLInputElement).value,
+        motivo: (document.getElementById('motivo') as HTMLTextAreaElement).value,
+      };
+
+      const r = await fetch('/api/reservas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await r.json();
+
+      if (r.ok && data.success) {
+        resultado.className = 'mt-4 p-4 rounded-lg bg-green-50 text-green-800';
+        resultado.innerHTML = `
+          <strong>¡Reserva creada!</strong><br>
+          Te enviamos un email de confirmación.<br>
+          <a href="/app" class="text-sam-accent underline">Descargá la app</a> para seguir tu turno.
+        `;
+        form.reset();
+      } else {
+        throw new Error(data.error || 'Error creando reserva');
+      }
+    } catch (err) {
+      resultado.className = 'mt-4 p-4 rounded-lg bg-red-50 text-red-800';
+      resultado.textContent = (err as Error).message;
+    } finally {
+      resultado.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Reservar con Google';
+    }
+  });
+</script>
