@@ -84,7 +84,7 @@ const { servicios = [] } = Astro.props;
     </div>
 
     <button
-      type="submit"
+      type="button"
       id="btn-submit"
       class="w-full bg-sam-accent text-white font-semibold py-3 px-6 rounded-lg hover:bg-sam-dark transition-colors mt-6"
     >
@@ -95,62 +95,89 @@ const { servicios = [] } = Astro.props;
   </form>
 </div>
 
+
+
 <script>
-  import { signInWithGoogle } from '../lib/firebase';
+  (function() {
+    console.log('[RESERVA] Script cargado');
 
-  (() => {
-  const form = document.getElementById('reserva-form') as HTMLFormElement;
-  const btn = document.getElementById('btn-submit') as HTMLButtonElement;
-  const resultado = document.getElementById('resultado') as HTMLDivElement;
+    function initForm() {
+      console.log('[RESERVA] initForm ejecutado');
 
-  if (!form || !btn || !resultado) { alert('[DEBUG] No encontre elementos'); return; }
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    alert('[DEBUG] Submit capturado');
-    btn.disabled = true;
-    btn.textContent = 'Abriendo Google...';
+      var form = document.getElementById('reserva-form');
+      var btn = document.getElementById('btn-submit');
+      var resultado = document.getElementById('resultado');
 
-    try {
-      const idToken = await signInWithGoogle();
+      if (!form || !btn || !resultado) {
+        console.error('[RESERVA] Faltan elementos:', { form: !!form, btn: !!btn, resultado: !!resultado });
+        alert('[RESERVA] Error: faltan elementos del form');
+        return;
+      }
 
-      btn.textContent = 'Creando reserva...';
+      console.log('[RESERVA] Todos los elementos encontrados');
 
-      const payload = {
-        id_token: idToken,
-        marca: (document.getElementById('marca') as HTMLInputElement).value,
-        modelo: (document.getElementById('modelo') as HTMLInputElement).value,
-        anio: (document.getElementById('anio') as HTMLInputElement).value,
-        fecha_inicio: (document.getElementById('fecha') as HTMLInputElement).value,
-        motivo: (document.getElementById('motivo') as HTMLTextAreaElement).value,
-      };
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        console.log('[RESERVA] Click capturado');
+        alert('[DEBUG] Click capturado - iniciando reserva');
 
-      const r = await fetch('/api/reservas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        btn.disabled = true;
+        var textoOriginal = btn.textContent;
+        btn.textContent = 'Abriendo Google...';
+
+        try {
+          console.log('[RESERVA] Importando Firebase...');
+          var firebaseMod = await import('../lib/firebase');
+          console.log('[RESERVA] Firebase importado OK');
+
+          var idToken = await firebaseMod.signInWithGoogle();
+          console.log('[RESERVA] Token obtenido:', idToken.substring(0, 20) + '...');
+          btn.textContent = 'Creando reserva...';
+
+          var payload = {
+            id_token: idToken,
+            marca: document.getElementById('marca').value,
+            modelo: document.getElementById('modelo').value,
+            anio: document.getElementById('anio').value,
+            fecha_inicio: document.getElementById('fecha').value,
+            motivo: document.getElementById('motivo').value
+          };
+
+          console.log('[RESERVA] Enviando a /api/reservas...');
+          var r = await fetch('/api/reservas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          var data = await r.json();
+          console.log('[RESERVA] Respuesta:', data);
+
+          if (r.ok && data.success) {
+            resultado.className = 'mt-4 p-4 rounded-lg bg-green-50 text-green-800';
+            resultado.innerHTML = '<strong>¡Reserva creada!</strong><br>Te enviamos un email de confirmación.<br><a href="/app" class="text-sam-accent underline">Descargá la app</a> para seguir tu turno.';
+            form.reset();
+          } else {
+            throw new Error(data.error || 'Error creando reserva');
+          }
+        } catch (err) {
+          console.error('[RESERVA] Error:', err);
+          resultado.className = 'mt-4 p-4 rounded-lg bg-red-50 text-red-800';
+          resultado.textContent = 'Error: ' + err.message;
+        } finally {
+          resultado.classList.remove('hidden');
+          btn.disabled = false;
+          btn.textContent = textoOriginal;
+        }
       });
 
-      const data = await r.json();
-
-      if (r.ok && data.success) {
-        resultado.className = 'mt-4 p-4 rounded-lg bg-green-50 text-green-800';
-        resultado.innerHTML = `
-          <strong>¡Reserva creada!</strong><br>
-          Te enviamos un email de confirmación.<br>
-          <a href="/app" class="text-sam-accent underline">Descargá la app</a> para seguir tu turno.
-        `;
-        form.reset();
-      } else {
-        throw new Error(data.error || 'Error creando reserva');
-      }
-    } catch (err) {
-      resultado.className = 'mt-4 p-4 rounded-lg bg-red-50 text-red-800';
-      resultado.textContent = (err as Error).message;
-    } finally {
-      resultado.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Reservar con Google';
+      console.log('[RESERVA] Listener attachado al botón');
     }
-  });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initForm);
+    } else {
+      initForm();
+    }
   })();
 </script>
