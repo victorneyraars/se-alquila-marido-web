@@ -91,7 +91,7 @@ export default async function handler(req, res) {
     const turnoData = await turnoRes.json();
 
     // Fire-and-forget: enviar emails (no bloquea la respuesta)
-    enviarEmails({
+    await enviarEmails({
       loginData,
       vehiculo: vehiculoData,
       turno: turnoData,
