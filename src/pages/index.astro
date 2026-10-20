@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import ServicioCard from '../components/ServicioCard.astro';
 import ReviewCard from '../components/ReviewCard.astro';
 import WhatsAppButton from '../components/WhatsAppButton.astro';
+import ModalidadesBadges from '../components/ModalidadesBadges.astro';
 import ReservaForm from '../components/ReservaForm.astro';
 import {
   fetchPrestadorPorSlug,
@@ -133,6 +134,8 @@ const reservaUrl = '#reserva';
       </div>
     </div>
   </section>
+
+  <ModalidadesBadges modalidades={prestador?.modalidades ?? null} />
 
   <!-- ============ SERVICIOS ============ -->
   <section id="servicios" class="py-16 sm:py-20 border-t border-sam-primary/10">
