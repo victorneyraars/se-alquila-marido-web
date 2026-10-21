@@ -1,20 +1,17 @@
 /**
- * Cloudflare Pages Function: POST /api/reservas
+ * Endpoint de Astro: POST /api/reservas
  *
  * Recibe los datos del form de reserva, autentica con Google (id_token),
  * mapea el servicio elegido al objeto_servicio_id del backend, y crea
  * el turno via POST /api/v1/mis-turnos.
  *
- * Reemplaza el proxy de Vercel que se perdió al migrar a Cloudflare.
+ * Astro lo compila como parte del Worker SSR de Cloudflare.
+ * El frontend no cambia: sigue llamando a POST /api/reservas.
  */
-export async function onRequest(context) {
-  const { request, env } = context;
-
-  if (request.method !== 'POST') {
-    return json({ error: 'Método no permitido' }, 405);
-  }
-
-  const apiUrl = env.PUBLIC_API_URL || 'https://api-dev.baqueanonatales.com';
+export const POST = async ({ request, locals }) => {
+  const apiUrl =
+    locals?.runtime?.env?.PUBLIC_API_URL ||
+    'https://api-dev.baqueanonatales.com';
   const prestadorSlug = 'se-alquila-marido';
 
   try {
@@ -35,20 +32,20 @@ export async function onRequest(context) {
     const accessToken = authData.access_token;
 
     // 2. Obtener servicios del prestador
-    const prestadorRes = await fetch(`${apiUrl}/api/v1/prestadores/${prestadorSlug}`, {
-      headers: { Accept: 'application/json' },
-    });
+    const prestadorRes = await fetch(
+      `${apiUrl}/api/v1/prestadores/${prestadorSlug}`,
+      { headers: { Accept: 'application/json' } },
+    );
     if (!prestadorRes.ok) {
       return json({ error: 'Prestador no encontrado' }, 500);
     }
     const prestador = await prestadorRes.json();
     const servicios = prestador.servicios || [];
-
     if (servicios.length === 0) {
       return json({ error: 'El prestador no tiene servicios cargados' }, 500);
     }
 
-    // 3. Mapear el servicio elegido (string del form) a un objeto_servicio_id
+    // 3. Mapear el servicio elegido a un objeto_servicio_id
     const MAPEO_CATEGORIA = {
       mantenimiento: 'Mantenimiento',
       frenos: 'Frenos',
@@ -60,7 +57,6 @@ export async function onRequest(context) {
     const servicioElegido = categoriaBuscada
       ? servicios.find((s) => s.categoria_servicio === categoriaBuscada)
       : servicios[0];
-
     if (!servicioElegido) {
       return json({ error: 'No hay servicio disponible para esa categoría' }, 500);
     }
@@ -71,7 +67,7 @@ export async function onRequest(context) {
       `Patente: ${body.patente || '?'}`,
     ].join(' | ');
 
-    // 5. Normalizar fecha_inicio (datetime-local → ISO 8601 con Z)
+    // 5. Normalizar fecha_inicio
     let fechaISO;
     try {
       fechaISO = new Date(body.fecha_inicio).toISOString();
@@ -84,7 +80,7 @@ export async function onRequest(context) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         prestador_id: prestador.id,
@@ -107,7 +103,7 @@ export async function onRequest(context) {
     console.error('[reservas] error inesperado:', e);
     return json({ error: e.message || 'Error interno' }, 500);
   }
-}
+};
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
