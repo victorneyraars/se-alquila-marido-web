@@ -12,5 +12,6 @@ npm-debug.log*
 Thumbs.db
 .vercel
 .env*
+!.env.example
 .gcp-credentials.json
 *.bak_*

@@ -1,6 +1,16 @@
 ---
-// Redirige /app a la descarga directa del APK (compatible con output: static).
-const apkUrl = 'https://api-dev.baqueanonatales.com/apks/app-clientdev.apk';
+/**
+ * Redirige /app a la descarga directa del APK client.
+ *
+ * La URL se resuelve por environment desde `astro:env/client`:
+ *   - dev/staging: app-clientdev.apk
+ *   - prod:        app-client.apk
+ *
+ * Antes estaba hardcodeada a `clientdev.apk`, lo que hacía que la web de
+ * producción sirviera el binario de desarrollo. Corregido en este commit.
+ */
+import { PUBLIC_APK_URL } from 'astro:env/client';
+const apkUrl = PUBLIC_APK_URL;
 ---
 <!DOCTYPE html>
 <html lang="es">

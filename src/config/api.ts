@@ -1,6 +1,10 @@
 /**
  * Configuración centralizada de la API de Baqueano.
- * Usa variables de entorno con fallback para dev/prod.
+ *
+ * La URL base se lee de `astro:env/client` (schema definido en
+ * astro.config.mjs). Esto reemplaza el patrón `import.meta.env.PUBLIC_API_URL`
+ * con fallback hardcodeado, que fue la causa del bug donde el entorno dev
+ * apuntaba silenciosamente a la API de prod si la env var no estaba seteada.
  *
  * Mejores prácticas:
  * - Tipos estrictos para todos los modelos.
@@ -8,8 +12,9 @@
  * - URLs centralizadas para facilitar cambios de entorno.
  */
 
-export const API_URL =
-  import.meta.env.PUBLIC_API_URL || 'https://api.baqueanonatales.com';
+import { PUBLIC_API_URL } from 'astro:env/client';
+
+export const API_URL = PUBLIC_API_URL;
 
 export const API_ENDPOINTS = {
   comercios: `${API_URL}/api/v1/comercios`,
