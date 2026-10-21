@@ -1,0 +1,19 @@
+# Configuración de Cloudflare Pages
+# Al usar wrangler, estas variables se inyectan automáticamente
+# según la rama (branch) desde la que se despliega.
+
+name = "se-alquila-marido-web"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-03-20"
+
+# Variables para Producción (rama main)
+[env.production.vars]
+PUBLIC_ENV = "prod"
+PUBLIC_API_URL = "https://api.baqueanonatales.com"
+PUBLIC_APK_URL = "https://api.baqueanonatales.com/apks/app-client.apk"
+
+# Variables para Staging (rama dev)
+[env.preview.vars]
+PUBLIC_ENV = "dev"
+PUBLIC_API_URL = "https://api-dev.baqueanonatales.com"
+PUBLIC_APK_URL = "https://api-dev.baqueanonatales.com/apks/app-clientdev.apk"

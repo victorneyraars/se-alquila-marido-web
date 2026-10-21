@@ -1,6 +1,5 @@
 import { defineConfig, envField } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import vercel from '@astrojs/vercel';
 
 /**
  * Configuración de Astro.
@@ -20,7 +19,6 @@ export default defineConfig({
   site: 'https://sealquilamarido.com',
   output: 'static',
   integrations: [tailwind()],
-  adapter: vercel(),
   env: {
     schema: {
       // URL base de la API (dev o prod según el environment de despliegue).
