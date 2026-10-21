@@ -6,8 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "analyze": "astro check",
-    "postbuild": "rm -rf dist"
+    "analyze": "astro check"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
