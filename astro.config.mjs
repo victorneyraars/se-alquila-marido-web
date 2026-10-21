@@ -1,35 +1,23 @@
 import { defineConfig, envField } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
+import cloudflare from '@astrojs/cloudflare';
 
 /**
- * Configuración de Astro.
- *
- * - site: dominio canónico para SEO y sitemaps.
- * - output: 'static' → todas las páginas se pre-renderizan en build time.
- *   Los fetch a la API se hacen en build, no en el navegador del usuario.
- * - adapter: vercel() → todavía se usa para el deploy actual. Migraremos a
- *   Cloudflare Pages en el próximo paso (mismo código, distinto adaptador).
- * - env.schema: declara las variables públicas que la app puede leer con
- *   `import { X } from 'astro:env/client'`. Astro valida tipos y falla en
- *   build si falta una requerida. Esto reemplaza el patrón `import.meta.env`
- *   con fallback hardcodeado, que era la causa del bug del `clientdev.apk`
- *   servido desde producción.
+ * Configuración de Astro para la web vertical (Se Alquila Marido).
+ * 
+ * - output: 'server' → SSR habilitado. Consulta la API en cada request.
+ * - adapter: cloudflare() → Compatible con Cloudflare Pages Functions (Edge).
+ * - env.schema: Variables type-safe inyectadas en build time.
  */
 export default defineConfig({
   site: 'https://sealquilamarido.com',
-  output: 'static',
+  output: 'server',
+  adapter: cloudflare(),
   integrations: [tailwind()],
   env: {
     schema: {
-      // URL base de la API (dev o prod según el environment de despliegue).
       PUBLIC_API_URL: envField.string({ context: 'client', access: 'public' }),
-
-      // URL del APK client a servir en /app. En dev apunta a app-clientdev.apk,
-      // en prod a app-client.apk. Antes estaba hardcodeado en app.astro.
       PUBLIC_APK_URL: envField.string({ context: 'client', access: 'public' }),
-
-      // Etiqueta del entorno actual, útil para debugging visual y analytics.
-      // Valores permitidos: dev | staging | prod.
       PUBLIC_ENV: envField.enum({
         context: 'client',
         access: 'public',

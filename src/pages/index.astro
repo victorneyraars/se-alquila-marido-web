@@ -12,7 +12,6 @@ import {
   type Review,
 } from '../config/api';
 
-export const prerender = true;
 
 const [prestador, reviews] = await Promise.all([
   fetchPrestadorPorSlug('se-alquila-marido'),
