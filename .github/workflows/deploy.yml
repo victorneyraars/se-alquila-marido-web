@@ -1,0 +1,21 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: victorneyraars/baqueano-natales/.github/workflows/deploy-astro.yml@b59ce56cfc91b2a0405dab44327a4563f7e4bec9
+    with:
+      project-name: se-alquila-marido-web
+      environment: production
+      cloudflare-branch: main
+      build-env: |
+        PUBLIC_API_URL=https://api.baqueanonatales.com
+        PUBLIC_APK_URL=https://api.baqueanonatales.com/apks/app-client.apk
+        PUBLIC_ENV=prod
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
